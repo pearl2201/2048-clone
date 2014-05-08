@@ -58,11 +58,11 @@ public class DrawCell implements Disposable {
 
 			if (key >= 128) {
 
-				Pixmap pixmap = new Pixmap(90, 90, Format.RGBA8888);
+				Pixmap pixmap = new Pixmap(Constants.CELL_WIDTH, Constants.CELL_WIDTH, Format.RGBA8888);
 				pixmap.setColor(Color.WHITE);
-				pixmap.drawRectangle(0, 0, 90, 90);
+				pixmap.drawRectangle(0, 0, Constants.CELL_WIDTH, Constants.CELL_WIDTH);
 				pixmap.setColor(color);
-				pixmap.fillRectangle(1, 1, 88, 88);
+				pixmap.fillRectangle(1, 1, Constants.CELL_WIDTH -2, Constants.CELL_WIDTH -2);
 
 				Texture texture = new Texture(pixmap);
 				texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -70,10 +70,10 @@ public class DrawCell implements Disposable {
 				pixmap.dispose();
 				return region;
 			} else {
-				Pixmap pixmap = new Pixmap(90, 90, Format.RGBA8888);
-
+				Pixmap pixmap = new Pixmap(Constants.CELL_WIDTH, Constants.CELL_WIDTH, Format.RGBA8888);
+				
 				pixmap.setColor(color);
-				pixmap.fillRectangle(0, 0, 90, 90);
+				pixmap.fillRectangle(0, 0, Constants.CELL_WIDTH, Constants.CELL_WIDTH);
 
 				Texture texture = new Texture(pixmap);
 				TextureRegion region = new TextureRegion(texture);
@@ -152,9 +152,9 @@ public class DrawCell implements Disposable {
 
 		Assets.instance.font.setScale(squares.get(key).getScale() * f);
 
-		batch.draw(squares.get(key).getTexture(), x, y, 45f, 45f, 90f, 90f, f, f, 0);
-		x = x + 45 - Assets.instance.font.getBounds(Integer.toString(key)).width / 2;
-		y = y + 45 + Assets.instance.font.getBounds("9985").height + 40 * squares.get(key).getScale() * f;
+		batch.draw(squares.get(key).getTexture(), x, y, Constants.CELL_WIDTH/2, Constants.CELL_WIDTH/2, Constants.CELL_WIDTH, Constants.CELL_WIDTH, f, f, 0);
+		x = x + Constants.CELL_WIDTH/2 - Assets.instance.font.getBounds(Integer.toString(key)).width / 2;
+		y = y + Constants.CELL_WIDTH/2 + Assets.instance.font.getBounds("9985").height + Constants.BITMAPFONT_LINEHEIGHT/2 * squares.get(key).getScale() * f;
 		if (key > 4)
 			Assets.instance.font.setColor(Color.WHITE);
 		else

@@ -61,6 +61,7 @@ public class GameLoseGroup extends Group {
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
 		// TODO Auto-generated method stub
+		// Don't ask for why it has this coordinate =))
 		batch.draw(Assets.instance.opacityLayer, 0, 0);
 		Assets.instance.font.setColor(Color.BLACK);
 		Assets.instance.font.setScale(1.5f);

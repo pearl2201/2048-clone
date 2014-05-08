@@ -88,6 +88,7 @@ public class GameScreen implements Screen {
 	private void addGroupButton() {
 		/*
 		 * Add new and Exit Button; texture of it will be draw at render
+		 *  Don't ask for why it has this coordinate =))
 		 */
 		Group group = new Group();
 		{
@@ -182,6 +183,11 @@ public class GameScreen implements Screen {
 
 	private void addCell() {
 		if (emptyCellCount > 0) {
+			
+			/*
+			 * choose random pos at null cell of board, after,we find pos in board, and random value for it
+			 * call addCell(value, posX, posY) to add to board.
+			 */
 			int pos = MathUtils.random(emptyCellCount - 1);
 			boolean findEmpty = false;
 			int i = 0;
@@ -297,7 +303,7 @@ public class GameScreen implements Screen {
 
 	private void checkDirection() {
 		// check touch direction
-		if (drag.angle() > 45 && drag.angle() < 135)
+		if (drag.angle() > 45 && drag.angle() < 135) 
 			direction = Direction.UP;
 		else if (drag.angle() > 135 && drag.angle() < 225)
 			direction = Direction.LEFT;
@@ -320,6 +326,7 @@ public class GameScreen implements Screen {
 			// draw background
 			batch.draw(Assets.instance.backgroundL, 0, 0);
 			// draw newLabel and exitLabel
+			// Don't ask for why it has this coordinate =))
 			batch.draw(Assets.instance.newL, 30, 465);
 			batch.draw(Assets.instance.exitL, 110 - 0.29f * Assets.instance.exitL.getRegionWidth() / 2, 465 - Assets.instance.exitL.getRegionHeight() * 0.29f,
 					Assets.instance.exitL.getRegionWidth() / 2, Assets.instance.exitL.getRegionHeight(), Assets.instance.exitL.getRegionWidth(),
@@ -605,7 +612,7 @@ public class GameScreen implements Screen {
 						if (lastActor.getValue() != board[i][j].getValue()) {
 
 							if (adjustPosition != i) {
-								// move to exactly posiition
+								
 								board[adjustPosition][j] = board[i][j];
 								board[i][j] = null;
 								board[adjustPosition][j].moveTo(adjustPosition, j, adjustPosition - i);
@@ -614,7 +621,7 @@ public class GameScreen implements Screen {
 							adjustPosition--;
 
 						} else {
-							// move to exactly position
+							
 							board[i][j].moveTo(lastActor.getBoardX(), lastActor.getBoardY(), lastActor.getBoardX() - i);
 							shouldRemoveSquareActors.add(board[i][j]);
 							Score.instance.addScore(board[i][j].getValue());

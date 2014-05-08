@@ -4,40 +4,43 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.pearl.game.utils.Constants;
 import com.pearl.game.utils.DrawCell;
 
 public class Cell extends Actor {
 
 	private int value;
-	private int coorX;
-	private int coorY;
+	//coordinate in screen 
+	private int screenX;
+	private int screenY;
+	// coordinate in board
 	private int boardX;
 	private int boardY;
 
 	public Cell(int value, int boardX, int boardY) {
 		super();
 		this.value = value;
-		convertBoardToCoor(boardX, boardY);
-		setPosition(coorX, coorY);
-		setSize(90, 90);
+		convertBoardToScreen(boardX, boardY);
+		setPosition(screenX, screenY);
+		setSize(Constants.CELL_WIDTH, Constants.CELL_WIDTH);
 		setScale(0.8f);
 		addAction(Actions.scaleTo(1, 1, 0.035f));
 	}
 
 	public void moveTo(int boardX, int boardY, int duration) {
-		convertBoardToCoor(boardX, boardY);
-		this.addAction(Actions.moveTo(coorX, coorY, 0.1f / duration, Interpolation.linear));
+		convertBoardToScreen(boardX, boardY);
+		this.addAction(Actions.moveTo(screenX, screenY, 0.1f / duration, Interpolation.linear));
 	}
 
 	public boolean hasMoved() {
-		return (coorX == getX() && coorY == getY());
+		return (screenX == getX() && screenY == getY());
 	}
 
-	private void convertBoardToCoor(int boardX, int boardY) {
+	private void convertBoardToScreen(int boardX, int boardY) {
 		this.boardX = boardX;
 		this.boardY = boardY;
-		coorX = 30 + 12 * (this.boardY + 1) + this.boardY * 90;
-		coorY = 30 + 12 * (4 - this.boardX) + (3 - this.boardX) * 90;
+		screenX = Constants.BOARD_POS_BOT + Constants.BOARD_GRID_WIDTH * (this.boardY + 1) + this.boardY * Constants.CELL_WIDTH;
+		screenY = Constants.BOARD_POS_BOT  + Constants.BOARD_GRID_WIDTH * (Constants.BOARD_COL - this.boardX) + (Constants.BOARD_COL -1 - this.boardX) * Constants.CELL_WIDTH;
 	}
 
 	public int getValue() {

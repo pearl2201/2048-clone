@@ -22,7 +22,7 @@ public class GameWinGroup extends Group {
 	}
 
 	private void init() {
-		Gdx.app.log("create", "");
+		// Don't ask for why it has this coordinate =))
 		{
 			Actor tryagainActor = new Actor();
 			tryagainActor.setBounds(100, 200, Assets.instance.tryAgainL.getRegionWidth(), Assets.instance.tryAgainL.getRegionHeight());
@@ -63,6 +63,7 @@ public class GameWinGroup extends Group {
 		batch.draw(Assets.instance.opacityLayer, 0, 0);
 		Assets.instance.font.setColor(Color.BLACK);
 		Assets.instance.font.setScale(1.5f);
+		// Don't ask for why it has this coordinate =))
 		Assets.instance.font.draw(batch, "Won", 240 - Assets.instance.font.getBounds("Won").width / 2, 400);
 		batch.draw(Assets.instance.tryAgainL, 100, 200);
 		batch.draw(Assets.instance.exitL, 272, 200);
