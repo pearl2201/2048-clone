@@ -19,16 +19,15 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.FillViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.pearl.game.assets.Assets;
 import com.pearl.game.entities.Direction;
 import com.pearl.game.entities.Score;
-import com.pearl.game.entities.SquareActor;
+import com.pearl.game.entities.Cell;
 import com.pearl.game.screen.group.GameLoseGroup;
 import com.pearl.game.screen.group.GameWinGroup;
 import com.pearl.game.utils.Constants;
-import com.pearl.game.utils.DrawSquare;
+import com.pearl.game.utils.DrawCell;
 import com.pearl.game.utils.Prefs;
 
 public class GameScreen implements Screen {
@@ -44,11 +43,11 @@ public class GameScreen implements Screen {
 	private SpriteBatch batch;
 	private Stage stage;
 
-	private SquareActor[][] board;
-	private Array<SquareActor> shouldRemoveSquareActor;
-	private Array<SquareActor> shouldDoubleSquareActor;
+	private Cell[][] board;
+	private Array<Cell> shouldRemoveSquareActors;
+	private Array<Cell> shouldDoubleSquareActors;
 
-	private int emptySquareActorCount;
+	private int emptyCellCount;
 	private int maxValue;
 
 	private boolean touchInBoard;
@@ -72,13 +71,13 @@ public class GameScreen implements Screen {
 		camera.position.set(Constants.VIEWPORT_WIDTH / 2, Constants.VIEWPORT_HEIGHT / 2, 0);
 		camera.update();
 		batch = new SpriteBatch();
-		stage = new Stage(new FitViewport(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT, camera),batch);
+		stage = new Stage(new FitViewport(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT, camera), batch);
 		Gdx.input.setInputProcessor(stage);
 
 		initBoard();
 
-		shouldRemoveSquareActor = new Array<SquareActor>();
-		shouldDoubleSquareActor = new Array<SquareActor>();
+		shouldRemoveSquareActors = new Array<Cell>();
+		shouldDoubleSquareActors = new Array<Cell>();
 
 		addEvent();
 		addGroupButton();
@@ -87,6 +86,9 @@ public class GameScreen implements Screen {
 	}
 
 	private void addGroupButton() {
+		/*
+		 * Add new and Exit Button; texture of it will be draw at render
+		 */
 		Group group = new Group();
 		{
 			Actor actor = new Actor();
@@ -120,9 +122,9 @@ public class GameScreen implements Screen {
 	}
 
 	private void initBoard() {
-		emptySquareActorCount = 16;
+		emptyCellCount = 16;
 
-		board = new SquareActor[4][4];
+		board = new Cell[4][4];
 		if (Prefs.instance.isLaunchNewGame)
 			initDataForBoard();
 		else
@@ -133,7 +135,7 @@ public class GameScreen implements Screen {
 	private void initDataForBoard() {
 
 		for (int i = 0; i < 2; i++)
-			addSquareActor();
+			addCell();
 
 		isMove = false;
 		state = GameState.PLAYING;
@@ -149,10 +151,10 @@ public class GameScreen implements Screen {
 			for (int j = 0; j < 4; j++) {
 
 				if (!tmp[i * 4 + j].equals("0")) {
-					addSquareActor(Integer.parseInt(tmp[i * 4 + j]), i, j);
+					addCell(Integer.parseInt(tmp[i * 4 + j]), i, j);
 					if (Integer.parseInt(tmp[i * 4 + j]) > maxValue)
 						maxValue = Integer.parseInt(tmp[i * 4 + j]);
-					emptySquareActorCount--;
+					emptyCellCount--;
 				}
 			}
 
@@ -162,14 +164,12 @@ public class GameScreen implements Screen {
 	}
 
 	public void restartGame() {
-		// xoa toan bo Square trong stage
-		earseSquareActorInStage();
-
+		// clear cell in stage
+		earseCellActorInStage();
 		initDataForBoard();
-
 	}
 
-	private void earseSquareActorInStage() {
+	private void earseCellActorInStage() {
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
 				if (board[i][j] != null) {
@@ -177,13 +177,12 @@ public class GameScreen implements Screen {
 					stage.getRoot().removeActor(board[i][j]);
 					board[i][j] = null;
 				}
-		emptySquareActorCount = 16;
+		emptyCellCount = 16;
 	}
 
-	private void addSquareActor() {
-		if (emptySquareActorCount > 0) {
-			System.out.println("empty" + emptySquareActorCount);
-			int pos = MathUtils.random(emptySquareActorCount - 1);
+	private void addCell() {
+		if (emptyCellCount > 0) {
+			int pos = MathUtils.random(emptyCellCount - 1);
 			boolean findEmpty = false;
 			int i = 0;
 			int j = 0;
@@ -193,8 +192,6 @@ public class GameScreen implements Screen {
 					if (board[i][j] == null) {
 						if (d == pos) {
 							findEmpty = true;
-							Gdx.app.log("Add square Actor", "at pos " + pos + " " + i + " " + j);
-
 						}
 						d++;
 					}
@@ -207,14 +204,14 @@ public class GameScreen implements Screen {
 			} else {
 				value = 4;
 			}
-			addSquareActor(value, i, j);
-			Gdx.app.log("Add square Actor", "at pos " + pos + " " + i + " " + j + " has value: " + value);
-			emptySquareActorCount--;
+
+			addCell(value, i, j);
+			emptyCellCount--;
 		}
 	}
 
-	private void addSquareActor(int value, int boardX, int boardY) {
-		SquareActor actor = new SquareActor(value, boardX, boardY);
+	private void addCell(int value, int boardX, int boardY) {
+		Cell actor = new Cell(value, boardX, boardY);
 		board[boardX][boardY] = actor;
 		stage.addActor(actor);
 		printBoard();
@@ -226,18 +223,19 @@ public class GameScreen implements Screen {
 			@Override
 			public boolean keyDown(InputEvent event, int keycode) {
 				// TODO Auto-generated method stub
+				/*
+				 * Event is add for keyboard/desktop Game;
+				 */
 				if (state == GameState.PLAYING) {
 					if (keycode == Keys.UP) {
 						direction = Direction.UP;
 						if (isCanMoveWithDirection()) {
-
 							touchDragToUp();
 							isMove = true;
 						}
 					} else if (keycode == Keys.DOWN) {
 						direction = Direction.DOWN;
 						if (isCanMoveWithDirection()) {
-
 							touchDragToDown();
 							isMove = true;
 						}
@@ -245,19 +243,16 @@ public class GameScreen implements Screen {
 					} else if (keycode == Keys.RIGHT) {
 						direction = Direction.RIGHT;
 						if (isCanMoveWithDirection()) {
-
 							touchDragToRight();
 							isMove = true;
 						}
 					} else if (keycode == Keys.LEFT) {
 						direction = Direction.LEFT;
 						if (isCanMoveWithDirection()) {
-
 							touchDragToLeft();
 							isMove = true;
 						}
 					}
-					// lockInputBecauseSquareIsMove = true;
 				}
 				return super.keyDown(event, keycode);
 			}
@@ -266,6 +261,7 @@ public class GameScreen implements Screen {
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				// TODO Auto-generated method stub
 				if (state == GameState.PLAYING)
+					// check x,y in board
 					if (Constants.BOARD_POS_BOT <= x && x <= Constants.BOARD_POS_TOP && Constants.BOARD_POS_BOT <= y && y <= Constants.BOARD_POS_TOP) {
 						drag.set(x, y);
 						touchInBoard = true;
@@ -299,6 +295,19 @@ public class GameScreen implements Screen {
 		});
 	}
 
+	private void checkDirection() {
+		// check touch direction
+		if (drag.angle() > 45 && drag.angle() < 135)
+			direction = Direction.UP;
+		else if (drag.angle() > 135 && drag.angle() < 225)
+			direction = Direction.LEFT;
+		else if (drag.angle() > 225 && drag.angle() < 305)
+			direction = Direction.DOWN;
+		else if (drag.angle() > 305 || drag.angle() < 45)
+			direction = Direction.RIGHT;
+
+	}
+
 	@Override
 	public void render(float delta) {
 		// TODO Auto-generated method stub
@@ -308,13 +317,15 @@ public class GameScreen implements Screen {
 			batch.setProjectionMatrix(camera.combined);
 			update(delta);
 			batch.begin();
-
+			// draw background
 			batch.draw(Assets.instance.backgroundL, 0, 0);
+			// draw newLabel and exitLabel
 			batch.draw(Assets.instance.newL, 30, 465);
 			batch.draw(Assets.instance.exitL, 110 - 0.29f * Assets.instance.exitL.getRegionWidth() / 2, 465 - Assets.instance.exitL.getRegionHeight() * 0.29f,
 					Assets.instance.exitL.getRegionWidth() / 2, Assets.instance.exitL.getRegionHeight(), Assets.instance.exitL.getRegionWidth(),
 					Assets.instance.exitL.getRegionHeight(), 0.71f, 0.71f, 0);
-			
+
+			// draw Score and best Score
 			Assets.instance.font.setColor(Color.WHITE);
 			Assets.instance.font.setScale(0.5f);
 			Assets.instance.font.draw(batch, Integer.toString(Score.instance.getScore()),
@@ -336,6 +347,7 @@ public class GameScreen implements Screen {
 
 			{
 				if (isMove) {
+					// check cell is move to exaclty position
 					boolean tmpIsMoved = true;
 					for (int i = 0; i < 4; i++)
 						for (int j = 0; j < 4; j++)
@@ -343,7 +355,7 @@ public class GameScreen implements Screen {
 								if (board[i][j].hasMoved() == false)
 									tmpIsMoved = false;
 					{
-						Iterator<SquareActor> iters = shouldRemoveSquareActor.iterator();
+						Iterator<Cell> iters = shouldRemoveSquareActors.iterator();
 						while (iters.hasNext()) {
 							if (iters.next().hasMoved() == false)
 								tmpIsMoved = false;
@@ -351,37 +363,32 @@ public class GameScreen implements Screen {
 					}
 					if (tmpIsMoved) {
 						{
-
+							// remove cell and double value
 							printBoard();
-							System.out.println("===================================");
-							Iterator<SquareActor> iters = shouldRemoveSquareActor.iterator();
+							Iterator<Cell> iters = shouldRemoveSquareActors.iterator();
 							while (iters.hasNext()) {
-								SquareActor actor = iters.next();
-								System.out.println("remove Actor at" + actor.getBoardX() + actor.getBoardY());
+								Cell actor = iters.next();
 								stage.getRoot().removeActor(actor);
 								iters.remove();
 							}
 						}
 						{
-							Iterator<SquareActor> iters = shouldDoubleSquareActor.iterator();
+							Iterator<Cell> iters = shouldDoubleSquareActors.iterator();
 							while (iters.hasNext()) {
-								SquareActor actor = iters.next();
-								System.out.println("double Actor at" + actor.getBoardX() + actor.getBoardY());
-
+								Cell actor = iters.next();
 								actor.doubleValue();
 								maxValue = actor.getValue() > maxValue ? actor.getValue() : maxValue;
 								iters.remove();
 							}
 						}
-						addSquareActor();
+						// check win and prepare for new turn
+						addCell();
 						isMove = false;
 						printBoard();
 						if (maxValue == 2048) {
-							Gdx.app.log("Game", "Win");
 							gameWin();
 						} else {
 							if (!isBoardCanMove()) {
-								Gdx.app.log("Game", "Over");
 								gameLose();
 							}
 						}
@@ -409,7 +416,8 @@ public class GameScreen implements Screen {
 	@Override
 	public void resize(int width, int height) {
 		// TODO Auto-generated method stub
-
+		// it is apply for libgd 1.0.0; it miss it,input event game can not be
+		// catch
 		stage.getViewport().update(width, height);
 	}
 
@@ -422,8 +430,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void hide() {
 		// TODO Auto-generated method stub
-		call++;
-		System.out.println("call" + call);
+		// it is call when game exit
 		if (state == GameState.PLAYING) {
 			String convertBoardToString = "";
 			for (int i = 0; i < 4; i++)
@@ -434,31 +441,19 @@ public class GameScreen implements Screen {
 						convertBoardToString += ("0 ");
 				}
 			Prefs.instance.saveBoard(convertBoardToString, false);
-			Gdx.app.log("convert", convertBoardToString.length() + "");
 		}
 
 		else {
 			Prefs.instance.saveBoard("", true);
 		}
 
-		// /=====================================
-		// =======================================================
-		// /=====================================
-
 		state = GameState.EXIT;
 
-		if (batch != null) {
-			batch.dispose();
-			stage.dispose();
-			batch = null;
-		}
-
-		if (batch == null) {
-			System.out.println("ten ten batch");
-		}
+		batch.dispose();
+		stage.dispose();
 
 		Assets.instance.dispose();
-		DrawSquare.instance.dispose();
+		DrawCell.instance.dispose();
 		Prefs.instance.saveScore();
 
 	}
@@ -481,19 +476,6 @@ public class GameScreen implements Screen {
 
 	}
 
-	public void checkDirection() {
-
-		if (drag.angle() > 45 && drag.angle() < 135)
-			direction = Direction.UP;
-		else if (drag.angle() > 135 && drag.angle() < 225)
-			direction = Direction.LEFT;
-		else if (drag.angle() > 225 && drag.angle() < 305)
-			direction = Direction.DOWN;
-		else if (drag.angle() > 305 || drag.angle() < 45)
-			direction = Direction.RIGHT;
-
-	}
-
 	private void printBoard() {
 		System.out.println("\n========================================");
 		for (int i = 0; i < 4; i++) {
@@ -508,9 +490,10 @@ public class GameScreen implements Screen {
 		System.out.println("========================================\n");
 	}
 
+	
 	private void touchDragToLeft() {
 		for (int i = 0; i < 4; i++) {
-			SquareActor lastActor = null;
+			Cell lastActor = null;
 			int adjustPosition = 0;
 			for (int j = 0; j < 4; j++) {
 				if (board[i][j] == null)
@@ -519,14 +502,12 @@ public class GameScreen implements Screen {
 					if (lastActor == null) {
 
 						if (adjustPosition != j) {
-							// move to exactly posiition
 							board[i][adjustPosition] = board[i][j];
 							board[i][j] = null;
 							board[i][adjustPosition].moveTo(i, adjustPosition, j - adjustPosition);
 						}
 						lastActor = board[i][adjustPosition];
 
-						System.out.println("at " + i + "touch left, lastActor null, we move from " + j + " to " + (adjustPosition));
 						adjustPosition++;
 					} else {
 						if (lastActor.getValue() != board[i][j].getValue()) {
@@ -536,17 +517,15 @@ public class GameScreen implements Screen {
 								board[i][adjustPosition].moveTo(i, adjustPosition, j - adjustPosition);
 							}
 							lastActor = board[i][adjustPosition];
-							System.out.println("at " + i + "touch left, lastActor !null, not equal, we move from " + j + " to " + (adjustPosition));
 
 							adjustPosition++;
 
 						} else {
 							board[i][j].moveTo(lastActor.getBoardX(), lastActor.getBoardY(), j - lastActor.getBoardY());
-							shouldDoubleSquareActor.add(lastActor);
+							shouldDoubleSquareActors.add(lastActor);
 							Score.instance.addScore(board[i][j].getValue());
-							shouldRemoveSquareActor.add(board[i][j]);
-							emptySquareActorCount++;
-							System.out.println("at " + i + "touch left, lastActor !null, equal, we move from " + j + " to " + (lastActor.getBoardY()));
+							shouldRemoveSquareActors.add(board[i][j]);
+							emptyCellCount++;
 
 							lastActor = null;
 							board[i][j] = null;
@@ -562,7 +541,7 @@ public class GameScreen implements Screen {
 
 	private void touchDragToRight() {
 		for (int i = 0; i < 4; i++) {
-			SquareActor lastActor = null;
+			Cell lastActor = null;
 			int adjustPosition = 3;
 			for (int j = 3; j >= 0; j--) {
 				if (board[i][j] == null)
@@ -576,7 +555,6 @@ public class GameScreen implements Screen {
 							board[i][adjustPosition].moveTo(i, adjustPosition, adjustPosition - j);
 						}
 						lastActor = board[i][adjustPosition];
-						System.out.println("at " + i + "touch right, lastActor null, we move from " + j + " to " + (adjustPosition));
 
 						adjustPosition--;
 					} else {
@@ -587,23 +565,18 @@ public class GameScreen implements Screen {
 								board[i][adjustPosition].moveTo(i, adjustPosition, adjustPosition - j);
 							}
 							lastActor = board[i][adjustPosition];
-							System.out.println("at " + i + "touch right, lastActor !null, not equal, we move from " + j + " to " + (adjustPosition));
-
 							adjustPosition--;
 
 						} else {
 							board[i][j].moveTo(lastActor.getBoardX(), lastActor.getBoardY(), lastActor.getBoardY() - j);
 
-							shouldRemoveSquareActor.add(board[i][j]);
+							shouldRemoveSquareActors.add(board[i][j]);
 							Score.instance.addScore(board[i][j].getValue());
-							shouldDoubleSquareActor.add(lastActor);
-							emptySquareActorCount++;
-							System.out.println("at " + i + " touch right, lastActor !null, equal, we move from " + j + " to " + (lastActor.getBoardY()));
-
+							shouldDoubleSquareActors.add(lastActor);
+							emptyCellCount++;
 							lastActor = null;
 							board[i][j] = null;
 							printBoard();
-							System.out.println("===================================");
 						}
 					}
 
@@ -614,7 +587,7 @@ public class GameScreen implements Screen {
 
 	private void touchDragToDown() {
 		for (int j = 0; j < 4; j++) {
-			SquareActor lastActor = null;
+			Cell lastActor = null;
 			int adjustPosition = 3;
 			for (int i = 3; i >= 0; i--) {
 				if (board[i][j] == null)
@@ -622,14 +595,11 @@ public class GameScreen implements Screen {
 				else {
 					if (lastActor == null) {
 						if (adjustPosition != i) {
-							// move to exactly posiition
 							board[adjustPosition][j] = board[i][j];
 							board[i][j] = null;
 							board[adjustPosition][j].moveTo(adjustPosition, j, adjustPosition - i);
 						}
 						lastActor = board[adjustPosition][j];
-						System.out.println("at " + j + " touch down, lastActor !null, not equal, we move from " + i + " to " + (adjustPosition));
-
 						adjustPosition--;
 					} else {
 						if (lastActor.getValue() != board[i][j].getValue()) {
@@ -641,19 +611,15 @@ public class GameScreen implements Screen {
 								board[adjustPosition][j].moveTo(adjustPosition, j, adjustPosition - i);
 							}
 							lastActor = board[adjustPosition][j];
-							System.out.println("at " + j + " touch down, lastActor !null, not equal, we move from " + i + " to " + (adjustPosition));
-
 							adjustPosition--;
 
 						} else {
 							// move to exactly position
 							board[i][j].moveTo(lastActor.getBoardX(), lastActor.getBoardY(), lastActor.getBoardX() - i);
-							shouldRemoveSquareActor.add(board[i][j]);
+							shouldRemoveSquareActors.add(board[i][j]);
 							Score.instance.addScore(board[i][j].getValue());
-							shouldDoubleSquareActor.add(lastActor);
-							emptySquareActorCount++;
-							System.out.println("at " + j + " touch down, lastActor !null, equal, we move from " + i + " to " + (lastActor.getBoardX()));
-
+							shouldDoubleSquareActors.add(lastActor);
+							emptyCellCount++;
 							lastActor = null;
 							board[i][j] = null;
 
@@ -667,7 +633,7 @@ public class GameScreen implements Screen {
 
 	private void touchDragToUp() {
 		for (int j = 0; j < 4; j++) {
-			SquareActor lastActor = null;
+			Cell lastActor = null;
 			int adjustPosition = 0;
 			for (int i = 0; i < 4; i++) {
 				if (board[i][j] == null)
@@ -675,14 +641,11 @@ public class GameScreen implements Screen {
 				else {
 					if (lastActor == null) {
 						if (adjustPosition != i) {
-							// move to exactly posiition
 							board[adjustPosition][j] = board[i][j];
 							board[i][j] = null;
 							board[adjustPosition][j].moveTo(adjustPosition, j, i - adjustPosition);
 						}
 						lastActor = board[adjustPosition][j];
-						System.out.println("at " + j + " touch up, lastActor !null, not equal, we move from " + i + " to " + (adjustPosition));
-
 						adjustPosition++;
 					} else {
 						if (lastActor.getValue() != board[i][j].getValue()) {
@@ -692,17 +655,13 @@ public class GameScreen implements Screen {
 								board[adjustPosition][j].moveTo(adjustPosition, j, i - adjustPosition);
 							}
 							lastActor = board[adjustPosition][j];
-							System.out.println("at " + j + " touch up, lastActor !null, not equal, we move from " + j + " to " + (adjustPosition));
-
 							adjustPosition++;
 						} else {
 							board[i][j].moveTo(lastActor.getBoardX(), lastActor.getBoardY(), i - lastActor.getBoardX());
 							Score.instance.addScore(board[i][j].getValue());
-							shouldRemoveSquareActor.add(board[i][j]);
-							shouldDoubleSquareActor.add(lastActor);
-							emptySquareActorCount++;
-							System.out.println("at " + j + " touch up, lastActor !null, equal, we move from " + i + " to " + (lastActor.getBoardX()));
-
+							shouldRemoveSquareActors.add(board[i][j]);
+							shouldDoubleSquareActors.add(lastActor);
+							emptyCellCount++;
 							lastActor = null;
 							board[i][j] = null;
 
@@ -714,7 +673,7 @@ public class GameScreen implements Screen {
 		}
 	}
 
-	private Vector2 findFarthestPosition(SquareActor actor, Direction dir) {
+	private Vector2 findFarthestCell(Cell actor, Direction dir) {
 		int i = actor.getBoardX() + dir.getX();
 		int j = actor.getBoardY() + dir.getY();
 		while (isInBoard(i, j)) {
@@ -730,7 +689,7 @@ public class GameScreen implements Screen {
 
 	private boolean isBoardCanMove() {
 
-		return emptySquareActorCount > 0 || isTileMatchesAvaiable();
+		return emptyCellCount > 0 || isTileMatchesAvaiable();
 	}
 
 	private boolean isTileMatchesAvaiable() {
@@ -757,15 +716,15 @@ public class GameScreen implements Screen {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				if (board[i][j] != null) {
-					if (findFarthestPosition(board[i][j], direction) != null) {
+					if (findFarthestCell(board[i][j], direction) != null) {
 
-						if (board[(int) findFarthestPosition(board[i][j], direction).x][(int) findFarthestPosition(board[i][j], direction).y].getValue() == board[i][j]
+						if (board[(int) findFarthestCell(board[i][j], direction).x][(int) findFarthestCell(board[i][j], direction).y].getValue() == board[i][j]
 								.getValue()) {
 							return true;
 						} else {
-							if (Math.abs(findFarthestPosition(board[i][j], direction).x - i) > 1)
+							if (Math.abs(findFarthestCell(board[i][j], direction).x - i) > 1)
 								return true;
-							if (Math.abs(findFarthestPosition(board[i][j], direction).y - j) > 1)
+							if (Math.abs(findFarthestCell(board[i][j], direction).y - j) > 1)
 								return true;
 						}
 					} else {

@@ -1,7 +1,5 @@
 package com.pearl.game.entities;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.pearl.game.utils.Prefs;
 
 public class Score {

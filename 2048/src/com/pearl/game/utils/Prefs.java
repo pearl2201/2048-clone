@@ -6,7 +6,7 @@ import com.pearl.game.entities.Score;
 
 public class Prefs {
 	public static Prefs instance = new Prefs();
-	public static Preferences pref;
+	private static Preferences pref;
 	public int score;
 	public int best;
 	public boolean isLaunchNewGame;
@@ -48,6 +48,7 @@ public class Prefs {
 		}
 
 		pref.putBoolean("isFirstLaunchGame", isLauchNewGame);
+		pref.flush();
 
 	}
 }

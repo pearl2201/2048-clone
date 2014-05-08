@@ -4,7 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
 import com.pearl.game.assets.Assets;
 import com.pearl.game.screen.GameScreen;
-import com.pearl.game.utils.DrawSquare;
+import com.pearl.game.utils.DrawCell;
 
 public class Pearl extends Game {
 
@@ -12,7 +12,7 @@ public class Pearl extends Game {
 	public void create() {
 		// TODO Auto-generated method stub
 		Assets.instance.load(new AssetManager());
-		DrawSquare.instance.init();
+		DrawCell.instance.init();
 		setScreen(new GameScreen(this));
 
 	}

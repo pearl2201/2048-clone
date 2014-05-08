@@ -9,13 +9,11 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.utils.Disableable;
 import com.badlogic.gdx.utils.Disposable;
 import com.pearl.game.assets.Assets;
 
-public class DrawSquare implements Disposable {
+public class DrawCell implements Disposable {
 
 	class Square {
 
@@ -26,7 +24,7 @@ public class DrawSquare implements Disposable {
 
 		public Square(int key, int r, int g, int b) {
 			this.key = key;
-			this.color = new Color(((float) r) / 255f, ((float) g) / 255f, ((float) b) / 255f, 1.0f);
+			this.color = new Color((r) / 255f, (g) / 255f, (b) / 255f, 1.0f);
 			if (Integer.toString(key).length() <= 4)
 				this.scale = 1;
 			else
@@ -65,13 +63,10 @@ public class DrawSquare implements Disposable {
 				pixmap.drawRectangle(0, 0, 90, 90);
 				pixmap.setColor(color);
 				pixmap.fillRectangle(1, 1, 88, 88);
-				// pixmap.setColor(color.r, color.g, color.b, 0.6f);
-				// pixmap.fillRectangle(0, 0, 100, 100);
 
 				Texture texture = new Texture(pixmap);
 				texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 				TextureRegion region = new TextureRegion(texture);
-				// texture.dispose();
 				pixmap.dispose();
 				return region;
 			} else {
@@ -82,7 +77,6 @@ public class DrawSquare implements Disposable {
 
 				Texture texture = new Texture(pixmap);
 				TextureRegion region = new TextureRegion(texture);
-				// texture.dispose();
 				pixmap.dispose();
 				return region;
 			}
@@ -121,10 +115,10 @@ public class DrawSquare implements Disposable {
 		}
 	}
 
-	public static DrawSquare instance = new DrawSquare();
+	public static DrawCell instance = new DrawCell();
 	private Map<Integer, Square> squares;
 
-	private DrawSquare() {
+	private DrawCell() {
 
 	}
 
@@ -158,7 +152,7 @@ public class DrawSquare implements Disposable {
 
 		Assets.instance.font.setScale(squares.get(key).getScale() * f);
 
-		batch.draw(squares.get(key).getTexture(), x , y , 45f, 45f, 90f, 90f, f, f, 0);
+		batch.draw(squares.get(key).getTexture(), x, y, 45f, 45f, 90f, 90f, f, f, 0);
 		x = x + 45 - Assets.instance.font.getBounds(Integer.toString(key)).width / 2;
 		y = y + 45 + Assets.instance.font.getBounds("9985").height + 40 * squares.get(key).getScale() * f;
 		if (key > 4)

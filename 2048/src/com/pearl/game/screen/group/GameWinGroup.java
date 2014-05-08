@@ -2,7 +2,6 @@ package com.pearl.game.screen.group;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -11,9 +10,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.pearl.game.assets.Assets;
 import com.pearl.game.screen.GameScreen;
 
-public class GameWinGroup extends Group{
+public class GameWinGroup extends Group {
 
-	private Texture opacityT;
 	private GameScreen gameScreen;
 
 	public GameWinGroup(GameScreen gameScreen) {
@@ -41,18 +39,18 @@ public class GameWinGroup extends Group{
 			});
 			addActor(tryagainActor);
 		}
-		
+
 		{
 			Actor exitActor = new Actor();
 			exitActor.setBounds(272, 200, Assets.instance.tryAgainL.getRegionWidth(), Assets.instance.tryAgainL.getRegionHeight());
 			;
 			exitActor.addListener(new ClickListener() {
-				
+
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
 					// TODO Auto-generated method stub
-				//	gameScreen.getGame().dispose();
-				Gdx.app.exit();
+					// gameScreen.getGame().dispose();
+					Gdx.app.exit();
 				}
 			});
 			addActor(exitActor);
@@ -69,6 +67,5 @@ public class GameWinGroup extends Group{
 		batch.draw(Assets.instance.tryAgainL, 100, 200);
 		batch.draw(Assets.instance.exitL, 272, 200);
 	}
-	
 
 }

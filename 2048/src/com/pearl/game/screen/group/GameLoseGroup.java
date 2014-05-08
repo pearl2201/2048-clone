@@ -2,7 +2,6 @@ package com.pearl.game.screen.group;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -13,7 +12,7 @@ import com.pearl.game.screen.GameScreen;
 
 public class GameLoseGroup extends Group {
 
-	private Texture opacityT;
+	
 	private GameScreen gameScreen;
 
 	public GameLoseGroup(GameScreen gameScreen) {

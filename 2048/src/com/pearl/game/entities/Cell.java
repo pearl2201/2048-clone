@@ -1,16 +1,12 @@
 package com.pearl.game.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Interpolation;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.actions.AddAction;
-import com.pearl.game.utils.DrawSquare;
+import com.pearl.game.utils.DrawCell;
 
-public class SquareActor extends Actor {
+public class Cell extends Actor {
 
 	private int value;
 	private int coorX;
@@ -18,7 +14,7 @@ public class SquareActor extends Actor {
 	private int boardX;
 	private int boardY;
 
-	public SquareActor(int value, int boardX, int boardY) {
+	public Cell(int value, int boardX, int boardY) {
 		super();
 		this.value = value;
 		convertBoardToCoor(boardX, boardY);
@@ -71,11 +67,7 @@ public class SquareActor extends Actor {
 	@Override
 	public void draw(Batch batch, float parentAlpha) {
 		// TODO Auto-generated method stub
-		DrawSquare.instance.draw(value, getX(), getY(), batch, getScaleX());
-	}
-
-	public Rectangle getBound() {
-		return new Rectangle(coorX, coorY, 90, 90);
+		DrawCell.instance.draw(value, getX(), getY(), batch, getScaleX());
 	}
 
 	public void doubleValue() {
