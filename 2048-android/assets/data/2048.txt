@@ -1,0 +1,53 @@
+2048.png
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+new
+  rotate: false
+  xy: 2, 644
+  size: 72, 30
+  orig: 72, 30
+  offset: 0, 0
+  index: -1
+exit
+  rotate: false
+  xy: 851, 643
+  size: 108, 42
+  orig: 108, 42
+  offset: 0, 0
+  index: -1
+restart
+  rotate: false
+  xy: 2, 687
+  size: 72, 30
+  orig: 72, 30
+  offset: 0, 0
+  index: -1
+try-again
+  rotate: false
+  xy: 741, 643
+  size: 108, 42
+  orig: 108, 42
+  offset: 0, 0
+  index: -1
+opacity
+  rotate: false
+  xy: 484, 2
+  size: 480, 639
+  orig: 480, 639
+  offset: 0, 0
+  index: -1
+game-over
+  rotate: false
+  xy: 484, 643
+  size: 255, 37
+  orig: 255, 37
+  offset: 0, 0
+  index: -1
+background
+  rotate: false
+  xy: 2, 2
+  size: 480, 640
+  orig: 480, 640
+  offset: 0, 0
+  index: -1
