@@ -145,6 +145,7 @@ public class GameScreen implements Screen {
 
 	}
 
+	
 	public void loadDataFromPrefs() {
 
 		String[] tmp = Prefs.instance.board.split(" ");
