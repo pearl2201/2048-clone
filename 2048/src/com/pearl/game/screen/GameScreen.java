@@ -130,7 +130,7 @@ public class GameScreen implements Screen {
 			initDataForBoard();
 		else
 			loadDataFromPrefs();
-		maxValue = 0;
+		
 	}
 
 	private void initDataForBoard() {
@@ -141,6 +141,7 @@ public class GameScreen implements Screen {
 		isMove = false;
 		state = GameState.PLAYING;
 		Score.instance.setScore(0);
+		maxValue = 0;
 
 	}
 
